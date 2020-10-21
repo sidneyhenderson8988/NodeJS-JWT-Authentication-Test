@@ -42,7 +42,30 @@ app.post('/api/login', (req,res) => {
 
     for (let user of users){
         if (username == user.username && password == user.password){
-            let token = jwt.sign({ id: user.id, username: user.username}, secretKey, { expiresIn: '7d' });
+            let token = jwt.sign({ id: user.id, username: user.username}, secretKey, { expiresIn: '3m' });
+            res.json({
+                success: true,
+                err: null,
+                token
+            });
+            break
+        }
+        else {
+            res.status(401).json({
+                success: false,
+                token: null,
+                err: 'Username or password is incorrect'
+            });
+        }
+    }
+});
+
+app.post('/api/settings', (req,res) => {
+    const { username, password } = req.body;
+
+    for (let user of users){
+        if (username == user.username && password == user.password){
+            let token = jwt.sign({ id: user.id, username: user.username}, secretKey, { expiresIn: '3m' });
             res.json({
                 success: true,
                 err: null,
@@ -71,6 +94,13 @@ app.get('/api/prices', jwtMW, (req, res) => {
     res.json({
         success:true,
         myContent: 'This is the price $3.99.'
+    });
+});
+
+app.get('/api/settings', jwtMW, (req, res) => {
+    res.json({
+        success:true,
+        myContent: 'This is the settings page.'
     });
 });
 

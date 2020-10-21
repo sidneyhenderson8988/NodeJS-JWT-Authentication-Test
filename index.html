@@ -24,8 +24,16 @@
             </div>
 
             <div>
-                <button onclick="login()">Login</button>
-                <button onclick="getDashboard()">Get Dashboard</button>
+                <script type="text/javascript">
+                    function ChangeUrl(title, url) {
+                            var obj = { Title: title, Url: url };
+                            history.pushState(obj, obj.Title, obj.Url);
+                    }
+                </script>
+
+                <button onclick="login(); ChangeUrl('Login', 'Dashboard');">Login</button>
+                <button onclick="getDashboard(); ChangeUrl('Login', 'Dashboard');">Get Dashboard</button>
+                <button onclick="settings(); ChangeUrl('Settings', 'Settings');">Get Settings</button>
 
             </div>
         </main>
@@ -50,6 +58,24 @@
             });
     }
 
+    function settings() {
+        const data = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+        };
+        axios.post('/api/settings', data)
+            .then(res => {
+                console.log(res);
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                if (res && res.data && res.data.success) {
+                    const token = res.data.token;
+                    localStorage.setItem('jwt', token);
+                    getSettings();
+                }
+            });
+    }
+
     function getDashboard(){
         const token = localStorage.getItem('jwt');
         axios.get('/api/dashboard', {
@@ -64,6 +90,19 @@
         });     
     }
 
+    function getSettings(){
+        const token = localStorage.getItem('jwt');
+        axios.get('/api/settings', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(res => {
+            if (res && res.data && res.data.success) {
+                document.querySelector('h1.row').innerHTML = 'Settings';
+                document.querySelector('main').innerHTML = res.data.myContent;
+            }
+        });     
+    }
 </script>
 
 </body>
